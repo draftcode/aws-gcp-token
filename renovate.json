@@ -6,6 +6,7 @@
     ":semanticCommits"
   ],
   "rangeStrategy": "pin",
+  "minimumReleaseAge": "7 days",
   "lockFileMaintenance": {
     "enabled": true,
     "schedule": ["before 6am on monday"]
