@@ -56,8 +56,11 @@ jobs:
           REF: ${{ github.ref_name }}
         run: |
           mkdir -p dist
+          # github.ref_name on pull_request events is "N/merge" — the slash
+          # would escape into the filename and break tar. Replace with a dash.
+          safe_ref="${REF//\//-}"
           tar -C "target/${TRIPLE}/release" \
-            -czf "dist/aws-gcp-token-${REF}-${TRIPLE}.tar.gz" \
+            -czf "dist/aws-gcp-token-${safe_ref}-${TRIPLE}.tar.gz" \
             aws-gcp-token
       - name: Build .deb (linux only)
         if: contains(matrix.triple, 'linux-gnu')
