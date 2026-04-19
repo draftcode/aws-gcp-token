@@ -1,0 +1,23 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "helpers:pinGitHubActionDigestsToSemver",
+    ":semanticCommits"
+  ],
+  "rangeStrategy": "pin",
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 6am on monday"]
+  },
+  "packageRules": [
+    {
+      "matchManagers": ["cargo"],
+      "rangeStrategy": "update-lockfile"
+    },
+    {
+      "matchManagers": ["mise"],
+      "rangeStrategy": "pin"
+    }
+  ]
+}

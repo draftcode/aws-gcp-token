@@ -1,0 +1,98 @@
+name: release
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: build-${{ matrix.triple }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            triple: x86_64-unknown-linux-gnu
+          - os: ubuntu-24.04-arm
+            triple: aarch64-unknown-linux-gnu
+          - os: macos-latest
+            triple: x86_64-apple-darwin
+          - os: macos-latest
+            triple: aarch64-apple-darwin
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
+      - uses: jdx/mise-action@c37c93293d6b742fc901e1406b8f764f6fb19dac # v2.4.4
+        with:
+          cache: false
+      - uses: Swatinem/rust-cache@c19371144df3bb44fab255c43d04cbc2ab54d1c4 # v2.9.1
+        with:
+          key: ${{ matrix.triple }}
+          lookup-only: true
+      - name: Build release binary
+        env:
+          TRIPLE: ${{ matrix.triple }}
+        run: |
+          rustup target add "$TRIPLE"
+          cargo build --release --locked --target "$TRIPLE"
+      - name: Smoke test (linux x86_64 only)
+        if: matrix.triple == 'x86_64-unknown-linux-gnu'
+        env:
+          TRIPLE: ${{ matrix.triple }}
+        run: |
+          out=$("target/${TRIPLE}/release/aws-gcp-token" || true)
+          echo "$out" | python3 -c "import json,sys; d=json.load(sys.stdin); assert d['success'] is False and d['code']=='MISSING_AUDIENCE', d"
+      - name: Package tarball
+        env:
+          TRIPLE: ${{ matrix.triple }}
+          REF: ${{ github.ref_name }}
+        run: |
+          mkdir -p dist
+          tar -C "target/${TRIPLE}/release" \
+            -czf "dist/aws-gcp-token-${REF}-${TRIPLE}.tar.gz" \
+            aws-gcp-token
+      - name: Build .deb (linux only)
+        if: contains(matrix.triple, 'linux-gnu')
+        env:
+          TRIPLE: ${{ matrix.triple }}
+        run: cargo deb --no-build --target "$TRIPLE" -o dist/
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: binary-${{ matrix.triple }}
+          path: dist
+
+  github-release:
+    name: github-release
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [build]
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          pattern: binary-*
+          merge-multiple: true
+          path: dist
+      - name: Create GitHub Release with binaries attached
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          prerelease_flag=""
+          case "$TAG" in
+            *-*) prerelease_flag="--prerelease" ;;
+          esac
+          gh release create "$TAG" dist/* \
+            --title "$TAG" \
+            --generate-notes \
+            $prerelease_flag

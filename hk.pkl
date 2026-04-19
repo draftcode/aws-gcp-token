@@ -1,0 +1,35 @@
+amends "package://github.com/jdx/hk/releases/download/v1.43.0/hk@1.43.0#/Config.pkl"
+import "package://github.com/jdx/hk/releases/download/v1.43.0/hk@1.43.0#/Builtins.pkl"
+
+local allSteps: Mapping<String, Step> = new {
+  ["rustfmt"] = Builtins.rustfmt
+  ["taplo"] = (Builtins.taplo_format) {
+    glob = List("Cargo.toml")
+  }
+  ["mise-fmt"] = new Step {
+    glob = List("mise.toml", ".mise.toml")
+    check = "mise fmt --check"
+    fix = "mise fmt"
+  }
+  ["pkl"] = Builtins.pkl_format
+  ["cargo-clippy"] = Builtins.cargo_clippy
+  ["cargo-check"] = Builtins.cargo_check
+  ["cargo-deny"] = new Step {
+    glob = List("Cargo.toml", "Cargo.lock", "deny.toml")
+    check = "cargo deny --all-features check"
+  }
+  ["typos"] = Builtins.typos
+  ["actionlint"] = Builtins.actionlint
+  ["zizmor"] = Builtins.zizmor
+  ["newlines"] = Builtins.newlines
+  ["trailing-whitespace"] = Builtins.trailing_whitespace
+  ["mixed-line-ending"] = Builtins.mixed_line_ending
+  ["check-merge-conflict"] = Builtins.check_merge_conflict
+}
+
+hooks {
+  ["pre-commit"] { steps = allSteps }
+  ["pre-push"] { steps = allSteps }
+  ["check"] { steps = allSteps }
+  ["fix"] { steps = allSteps }
+}
