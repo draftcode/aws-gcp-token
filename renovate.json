@@ -13,7 +13,7 @@
   },
   "packageRules": [
     {
-      "matchManagers": ["cargo"],
+      "matchManagers": ["gomod"],
       "rangeStrategy": "update-lockfile"
     },
     {

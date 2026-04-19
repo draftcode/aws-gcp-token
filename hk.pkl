@@ -2,9 +2,13 @@ amends "package://github.com/jdx/hk/releases/download/v1.43.0/hk@1.43.0#/Config.
 import "package://github.com/jdx/hk/releases/download/v1.43.0/hk@1.43.0#/Builtins.pkl"
 
 local allSteps: Mapping<String, Step> = new {
-  ["rustfmt"] = Builtins.rustfmt
-  ["taplo"] = (Builtins.taplo_format) {
-    glob = List("Cargo.toml")
+  ["go-fumpt"] = Builtins.go_fumpt
+  ["gomod-tidy"] = Builtins.gomod_tidy
+  ["golangci-lint"] = Builtins.golangci_lint
+  ["go-licenses"] = new Step {
+    glob = List("go.mod", "go.sum", "**/*.go")
+    workspace_indicator = "go.mod"
+    check = "go-licenses check ./..."
   }
   ["mise-fmt"] = new Step {
     glob = List("mise.toml", ".mise.toml")
@@ -12,12 +16,6 @@ local allSteps: Mapping<String, Step> = new {
     fix = "mise fmt"
   }
   ["pkl"] = Builtins.pkl_format
-  ["cargo-clippy"] = Builtins.cargo_clippy
-  ["cargo-check"] = Builtins.cargo_check
-  ["cargo-deny"] = new Step {
-    glob = List("Cargo.toml", "Cargo.lock", "deny.toml")
-    check = "cargo deny --all-features check"
-  }
   ["typos"] = Builtins.typos
   ["actionlint"] = Builtins.actionlint
   ["zizmor"] = Builtins.zizmor

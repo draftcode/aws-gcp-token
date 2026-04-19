@@ -11,86 +11,35 @@ permissions:
   contents: read
 
 jobs:
-  build:
-    name: build-${{ matrix.triple }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: ubuntu-latest
-            triple: x86_64-unknown-linux-gnu
-          - os: ubuntu-24.04-arm
-            triple: aarch64-unknown-linux-gnu
-    steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
-        with:
-          persist-credentials: false
-      - uses: jdx/mise-action@c37c93293d6b742fc901e1406b8f764f6fb19dac # v2.4.4
-        with:
-          cache: false
-      - uses: Swatinem/rust-cache@c19371144df3bb44fab255c43d04cbc2ab54d1c4 # v2.9.1
-        with:
-          key: ${{ matrix.triple }}
-          lookup-only: true
-      - name: Build release binary
-        env:
-          TRIPLE: ${{ matrix.triple }}
-        run: |
-          rustup target add "$TRIPLE"
-          cargo build --release --locked --target "$TRIPLE"
-      - name: Smoke test (linux x86_64 only)
-        if: matrix.triple == 'x86_64-unknown-linux-gnu'
-        env:
-          TRIPLE: ${{ matrix.triple }}
-        run: |
-          out=$("target/${TRIPLE}/release/aws-gcp-token" || true)
-          echo "$out" | python3 -c "import json,sys; d=json.load(sys.stdin); assert d['success'] is False and d['code']=='MISSING_AUDIENCE', d"
-      - name: Package tarball
-        env:
-          TRIPLE: ${{ matrix.triple }}
-          REF: ${{ github.ref_name }}
-        run: |
-          mkdir -p dist
-          # github.ref_name on pull_request events is "N/merge" — the slash
-          # would escape into the filename and break tar. Replace with a dash.
-          safe_ref="${REF//\//-}"
-          tar -C "target/${TRIPLE}/release" \
-            -czf "dist/aws-gcp-token-${safe_ref}-${TRIPLE}.tar.gz" \
-            aws-gcp-token
-      - name: Build .deb
-        env:
-          TRIPLE: ${{ matrix.triple }}
-        run: cargo deb --no-build --target "$TRIPLE" -o dist/
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: binary-${{ matrix.triple }}
-          path: dist
-
-  github-release:
-    name: github-release
+  goreleaser:
+    name: goreleaser
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')
-    needs: [build]
     permissions:
       contents: write
     steps:
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
-          pattern: binary-*
-          merge-multiple: true
-          path: dist
-      - name: Create GitHub Release with binaries attached
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-          TAG: ${{ github.ref_name }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
+        with:
+          go-version-file: go.mod
+          # zizmor: cache-poisoning — release job publishes artifacts, so never restore cached deps.
+          cache: false
+      - name: Smoke test
         run: |
-          prerelease_flag=""
-          case "$TAG" in
-            *-*) prerelease_flag="--prerelease" ;;
-          esac
-          gh release create "$TAG" dist/* \
-            --title "$TAG" \
-            --generate-notes \
-            $prerelease_flag
+          go build -trimpath -ldflags="-s -w" -o /tmp/aws-gcp-token .
+          out=$(/tmp/aws-gcp-token || true)
+          echo "$out" | python3 -c "import json,sys; d=json.load(sys.stdin); assert d['success'] is False and d['code']=='MISSING_AUDIENCE', d"
+      - uses: goreleaser/goreleaser-action@e24998b8b67b290c2fa8b7c14fcfa7de2c5c9b8c # v7.1.0
+        with:
+          distribution: goreleaser
+          version: "~> v2"
+          args: ${{ startsWith(github.ref, 'refs/tags/v') && 'release --clean' || 'release --snapshot --clean' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+        with:
+          name: dist
+          path: dist
