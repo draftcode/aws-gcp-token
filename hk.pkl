@@ -28,7 +28,15 @@ local allSteps: Mapping<String, Step> = new {
 }
 
 hooks {
-  ["pre-commit"] { steps = allSteps }
+  ["pre-commit"] {
+    steps = new {
+      ...allSteps
+      // Guard against accidental commits straight to main/master — feature
+      // branches only. Only wired into pre-commit since the ad-hoc check/fix
+      // hooks are run off of any branch.
+      ["no-commit-to-branch"] = Builtins.no_commit_to_branch
+    }
+  }
   ["pre-push"] { steps = allSteps }
   ["check"] { steps = allSteps }
   ["fix"] { steps = allSteps }
