@@ -2,9 +2,9 @@
 
 A tiny, fast helper that turns AWS IAM credentials (e.g. an ECS task role) into
 a signed JWT for GCP Workload Identity Federation, in the exact JSON shape that
-[`google-auth`'s executable-sourced external account
-credentials](https://google.github.io/google-auth-library-python/reference/google.auth.external_account_authorized_user.html)
-expects.
+[executable-sourced external account
+credentials](https://docs.cloud.google.com/iam/docs/workload-identity-federation-with-other-providers)
+expect.
 
 It calls `sts:GetWebIdentityToken` with the audience supplied by `google-auth`
 and emits the resulting JWT on stdout. When `google-auth` provides a cache
@@ -28,10 +28,12 @@ download, extract, drop on `$PATH`.
 
 Each release attaches:
 
-- **`.tar.gz`** per target triple — works anywhere `curl` + `tar` do.
-  Triples: `x86_64-unknown-linux-gnu`, `aarch64-unknown-linux-gnu`,
-  `x86_64-apple-darwin`, `aarch64-apple-darwin`.
+- **`.tar.gz`** per Linux target triple — `x86_64-unknown-linux-gnu` and
+  `aarch64-unknown-linux-gnu`. Works anywhere `curl` + `tar` do.
 - **`.deb`** per Linux arch (`amd64`, `arm64`) — for Debian/Ubuntu base images.
+
+Binaries are Linux-only by design: the underlying AWS IAM credentials only
+exist inside AWS workloads (ECS, EC2, EKS), which are Linux.
 
 In a Debian/Ubuntu-based Dockerfile, grab the `.deb`:
 
