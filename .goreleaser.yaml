@@ -1,0 +1,62 @@
+version: 2
+
+project_name: aws-gcp-token
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: aws-gcp-token
+    main: .
+    binary: aws-gcp-token
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+    goarch:
+      - amd64
+      - arm64
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w
+
+archives:
+  - id: targz
+    formats: [tar.gz]
+    # Keep the Rust-style triple in the filename for continuity with v0.1.x.
+    name_template: >-
+      aws-gcp-token-{{ .Tag }}-{{ if eq .Arch "amd64" }}x86_64{{ else if eq .Arch "arm64" }}aarch64{{ end }}-unknown-linux-gnu
+    files:
+      - none*
+
+nfpms:
+  - id: deb
+    package_name: aws-gcp-token
+    vendor: draftcode
+    homepage: https://github.com/draftcode/aws-gcp-token
+    maintainer: draftcode <draftcode@gmail.com>
+    description: |
+      Fast AWS -> GCP workload identity federation token helper for
+      google-auth executable-sourced credentials.
+    license: Apache-2.0
+    formats:
+      - deb
+    section: utils
+    priority: optional
+    contents:
+      - src: LICENSE
+        dst: /usr/share/doc/aws-gcp-token/LICENSE
+      - src: README.md
+        dst: /usr/share/doc/aws-gcp-token/README
+
+checksum:
+  name_template: "checksums.txt"
+
+snapshot:
+  version_template: "{{ .Tag }}-SNAPSHOT-{{ .ShortCommit }}"
+
+release:
+  draft: false
+  prerelease: auto
