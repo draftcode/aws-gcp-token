@@ -22,7 +22,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Standalone-binary distribution: `.tar.gz` per target triple plus `.deb` per
   Linux arch attached to each GitHub Release.
 - GitHub Actions: `ci.yml` runs `hk check --all` + `cargo test`; `release.yml`
-  builds release binaries for `x86_64-unknown-linux-gnu`,
-  `aarch64-unknown-linux-gnu`, `x86_64-apple-darwin`, and
-  `aarch64-apple-darwin` on native runners and attaches them to the GitHub
-  Release on `v*` tags.
+  builds release binaries for `x86_64-unknown-linux-gnu` and
+  `aarch64-unknown-linux-gnu` on native runners and attaches them to the
+  GitHub Release on `v*` tags.
