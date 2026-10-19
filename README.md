@@ -45,7 +45,7 @@ In a Debian/Ubuntu-based Dockerfile, grab the `.deb`:
 ARG AWS_GCP_TOKEN_VERSION=v0.2.0
 RUN set -eux; \
     curl -fL -o /tmp/aws-gcp-token.deb \
-      "https://github.com/draftcode/aws-gcp-token/releases/download/${AWS_GCP_TOKEN_VERSION}/aws-gcp-token_0.2.0_amd64.deb"; \
+      "https://github.com/draftcode/aws-gcp-token/releases/download/${AWS_GCP_TOKEN_VERSION}/aws-gcp-token_0.2.0_linux_amd64.deb"; \
     dpkg -i /tmp/aws-gcp-token.deb; \
     rm /tmp/aws-gcp-token.deb
 ```
