@@ -50,7 +50,7 @@ const (
 	minDurationSec = 60
 	maxDurationSec = 3600
 
-	durationEnv = "AWS_GCP_TOKEN_DURATION_SECONDS"
+	durationEnv = "AWS_WEB_IDENTITY_TOKEN_DURATION_SECONDS"
 )
 
 var errMissingAudience = errors.New("GOOGLE_EXTERNAL_ACCOUNT_AUDIENCE is not set")
@@ -73,7 +73,7 @@ func main() {
 }
 
 // durationFromEnv returns the token lifetime to request from STS. It reads
-// AWS_GCP_TOKEN_DURATION_SECONDS and falls back to defaultDurationSec when the
+// AWS_WEB_IDENTITY_TOKEN_DURATION_SECONDS and falls back to defaultDurationSec when the
 // variable is unset or empty.
 func durationFromEnv() (int32, error) {
 	v := os.Getenv(durationEnv)

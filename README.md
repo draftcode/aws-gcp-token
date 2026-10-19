@@ -110,7 +110,7 @@ The helper itself reads one optional variable:
 
 | Variable | Notes |
 | --- | --- |
-| `AWS_GCP_TOKEN_DURATION_SECONDS` | Optional. JWT lifetime requested from STS (`DurationSeconds`), 60–3600. Defaults to `3600`. Lower it when the AWS session is shorter than the default, e.g. a role-chained session, otherwise STS rejects the request with `SessionDurationEscalationException`. |
+| `AWS_WEB_IDENTITY_TOKEN_DURATION_SECONDS` | Optional. JWT lifetime requested from STS (`DurationSeconds`), 60–3600. Defaults to `3600`. Lower it when the AWS session is shorter than the default, e.g. a role-chained session, otherwise STS rejects the request with `SessionDurationEscalationException`. |
 
 ## Output
 

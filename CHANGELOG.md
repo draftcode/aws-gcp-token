@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `AWS_GCP_TOKEN_DURATION_SECONDS` environment variable to set the JWT lifetime
+- `AWS_WEB_IDENTITY_TOKEN_DURATION_SECONDS` environment variable to set the JWT lifetime
   requested from STS (60–3600 seconds, default `3600`).
 
 ## [0.1.0] - 2026-04-19
