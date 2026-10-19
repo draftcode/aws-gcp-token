@@ -16,6 +16,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strconv"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -42,6 +43,16 @@ type failureResponse struct {
 	Message string `json:"message"`
 }
 
+const (
+	// Default token lifetime requested from STS.
+	defaultDurationSec = 3600
+	// Bounds accepted by sts:GetWebIdentityToken for DurationSeconds.
+	minDurationSec = 60
+	maxDurationSec = 3600
+
+	durationEnv = "AWS_GCP_TOKEN_DURATION_SECONDS"
+)
+
 var errMissingAudience = errors.New("GOOGLE_EXTERNAL_ACCOUNT_AUDIENCE is not set")
 
 func main() {
@@ -61,6 +72,24 @@ func main() {
 	}
 }
 
+// durationFromEnv returns the token lifetime to request from STS. It reads
+// AWS_GCP_TOKEN_DURATION_SECONDS and falls back to defaultDurationSec when the
+// variable is unset or empty.
+func durationFromEnv() (int32, error) {
+	v := os.Getenv(durationEnv)
+	if v == "" {
+		return defaultDurationSec, nil
+	}
+	n, err := strconv.Atoi(v)
+	if err != nil {
+		return 0, fmt.Errorf("%s must be an integer: %q", durationEnv, v)
+	}
+	if n < minDurationSec || n > maxDurationSec {
+		return 0, fmt.Errorf("%s must be between %d and %d: %d", durationEnv, minDurationSec, maxDurationSec, n)
+	}
+	return int32(n), nil
+}
+
 func run(ctx context.Context) error {
 	audience := os.Getenv("GOOGLE_EXTERNAL_ACCOUNT_AUDIENCE")
 	if audience == "" {
@@ -75,6 +104,11 @@ func run(ctx context.Context) error {
 		return errors.New("neither AWS_REGION nor AWS_DEFAULT_REGION is set")
 	}
 
+	duration, err := durationFromEnv()
+	if err != nil {
+		return err
+	}
+
 	cfg, err := config.LoadDefaultConfig(ctx, config.WithRegion(region))
 	if err != nil {
 		return fmt.Errorf("loading AWS config: %w", err)
@@ -84,7 +118,7 @@ func run(ctx context.Context) error {
 	out, err := client.GetWebIdentityToken(ctx, &sts.GetWebIdentityTokenInput{
 		Audience:         []string{audience},
 		SigningAlgorithm: aws.String("ES384"),
-		DurationSeconds:  aws.Int32(3600),
+		DurationSeconds:  aws.Int32(duration),
 	})
 	if err != nil {
 		return fmt.Errorf("STS GetWebIdentityToken: %w", err)
