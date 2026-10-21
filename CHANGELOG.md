@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-10-21
+
+### Security
+
+- Build with Go 1.26.10, which distrusts the roots behind the compromised
+  eMudhra intermediate CAs.
+
 ## [0.2.0] - 2026-10-19
 
 ### Added
