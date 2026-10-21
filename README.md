@@ -42,10 +42,10 @@ exist inside AWS workloads (ECS, EC2, EKS), which are Linux.
 In a Debian/Ubuntu-based Dockerfile, grab the `.deb`:
 
 ```dockerfile
-ARG AWS_GCP_TOKEN_VERSION=v0.2.0
+ARG AWS_GCP_TOKEN_VERSION=v0.2.1
 RUN set -eux; \
     curl -fL -o /tmp/aws-gcp-token.deb \
-      "https://github.com/draftcode/aws-gcp-token/releases/download/${AWS_GCP_TOKEN_VERSION}/aws-gcp-token_0.2.0_linux_amd64.deb"; \
+      "https://github.com/draftcode/aws-gcp-token/releases/download/${AWS_GCP_TOKEN_VERSION}/aws-gcp-token_0.2.1_linux_amd64.deb"; \
     dpkg -i /tmp/aws-gcp-token.deb; \
     rm /tmp/aws-gcp-token.deb
 ```
@@ -53,14 +53,14 @@ RUN set -eux; \
 Or use the raw tarball:
 
 ```bash
-curl -fL https://github.com/draftcode/aws-gcp-token/releases/download/v0.2.0/aws-gcp-token-v0.2.0-x86_64-unknown-linux-gnu.tar.gz \
+curl -fL https://github.com/draftcode/aws-gcp-token/releases/download/v0.2.1/aws-gcp-token-v0.2.1-x86_64-unknown-linux-gnu.tar.gz \
   | tar -xz -C /usr/local/bin
 ```
 
 From source:
 
 ```bash
-go install github.com/draftcode/aws-gcp-token@v0.2.0
+go install github.com/draftcode/aws-gcp-token@v0.2.1
 ```
 
 ## Wire it into google-auth
