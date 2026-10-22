@@ -31,7 +31,7 @@ jobs:
           go build -trimpath -ldflags="-s -w" -o /tmp/aws-gcp-token .
           out=$(/tmp/aws-gcp-token || true)
           echo "$out" | python3 -c "import json,sys; d=json.load(sys.stdin); assert d['success'] is False and d['code']=='MISSING_AUDIENCE', d"
-      - uses: goreleaser/goreleaser-action@e24998b8b67b290c2fa8b7c14fcfa7de2c5c9b8c # v7.1.0
+      - uses: goreleaser/goreleaser-action@a4f02ab5355a589de60d917a659ce617ed19b3de # v7.3.0
         with:
           distribution: goreleaser
           version: "~> v2"
