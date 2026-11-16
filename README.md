@@ -153,7 +153,7 @@ go build ./...
 
 This repo uses [`hk`](https://hk.jdx.dev) to wire up pre-commit / pre-push
 hooks for `gofumpt`, `golangci-lint` (which includes `go vet`), `go-licenses`, and the usual
-whitespace / actionlint / zizmor / typos checks.
+whitespace / jactionlint / zizmor / typos checks.
 
 ```bash
 # one-time: install the git hooks declared in hk.pkl
@@ -168,7 +168,7 @@ go test ./...
 ```
 
 Tool versions are pinned in `mise.toml`; if you have [`mise`](https://mise.jdx.dev)
-installed, `mise install` fetches `go`, `hk`, `pkl`, `actionlint`, `zizmor`,
+installed, `mise install` fetches `go`, `hk`, `pkl`, `jactionlint`, `zizmor`,
 `typos`, `golangci-lint`, `gofumpt`, `goreleaser`, and `go-licenses` at the versions the
 hooks expect.
 

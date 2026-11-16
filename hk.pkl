@@ -1,5 +1,6 @@
-amends "package://github.com/jdx/hk/releases/download/v1.43.0/hk@1.43.0#/Config.pkl"
-import "package://github.com/jdx/hk/releases/download/v1.43.0/hk@1.43.0#/Builtins.pkl"
+amends "package://github.com/jdx/hk/releases/download/v2.12.0/hk@2.12.0#/Config.pkl"
+
+import "package://github.com/jdx/hk/releases/download/v2.12.0/hk@2.12.0#/Builtins.pkl"
 
 local allSteps: Mapping<String, Step> = new {
   ["go-fumpt"] = Builtins.go_fumpt
@@ -17,7 +18,7 @@ local allSteps: Mapping<String, Step> = new {
   }
   ["pkl"] = Builtins.pkl_format
   ["typos"] = Builtins.typos
-  ["actionlint"] = Builtins.actionlint
+  ["jactionlint"] = Builtins.jactionlint
   ["zizmor"] = Builtins.zizmor
   ["newlines"] = Builtins.newlines
   ["trailing-whitespace"] = Builtins.trailing_whitespace
