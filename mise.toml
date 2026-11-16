@@ -1,11 +1,11 @@
 [tools]
-go = "1.26.10"
+go = "1.27.4"
 hk = "1.43.0"
 pkl = "0.31.1"
 actionlint = "1.7.12"
 zizmor = "1.24.1"
 typos = "1.45.1"
-"aqua:golangci/golangci-lint" = "2.11.4"
+"aqua:golangci/golangci-lint" = "2.15.0"
 "aqua:mvdan/gofumpt" = "0.9.2"
 "aqua:goreleaser/goreleaser" = "2.15.3"
 "go:github.com/google/go-licenses/v2" = "2.0.1"
