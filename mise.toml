@@ -6,6 +6,6 @@
 "aqua:mvdan/gofumpt" = "0.12.0"
 "aqua:zizmorcore/zizmor" = "1.32.0"
 "go:github.com/google/go-licenses/v2" = "2.0.1"
-"packslip:github.com/jdx/hk" = "2.12.0"
+"packslip:github.com/jdx/hk" = "2.13.0"
 "packslip:github.com/jdx/jactionlint" = "2.6.0"
 go = "1.27.4"
